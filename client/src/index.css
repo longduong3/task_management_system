@@ -1,0 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.bg-color {
+  background-color: #484c7f;
+}
+
+.recent-item:after{
+  transition: ease 0.1s;
+  border: 2px solid #eeeeee;
+  background: #d50b0b;
+  display: block;
+  position: absolute;
+  content: '';
+  width: 8px;
+  height: 8px;
+  top: 1.3em;
+  left: -5px;
+  border-radius: 30px;
+}
+
+.recent-item:hover:after {
+  transform: scale(3.5)
+}
