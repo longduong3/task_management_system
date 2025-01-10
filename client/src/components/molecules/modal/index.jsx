@@ -4,7 +4,7 @@ import clsx from 'clsx';
 import { styled, css } from '@mui/system';
 import { Modal as BaseModal } from '@mui/base/Modal';
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faPlus} from "@fortawesome/free-solid-svg-icons";
+import {faList, faPlus} from "@fortawesome/free-solid-svg-icons";
 
 export default function ModalCustom(props) {
     const [open, setOpen] = React.useState(false);
@@ -13,9 +13,9 @@ export default function ModalCustom(props) {
 
     return (
         <div>
-            <button className="text-white space-x-2 hover:text-chart-color1 focus:outline-none" onClick={handleOpen}>
+            <button className={`text-white space-x-2 hover:text-blue-200 focus:outline-none ${props.bgColorBtn} p-3 rounded-xl`}  onClick={handleOpen}>
                 <FontAwesomeIcon icon={faPlus}/>
-                <span>{props.btnName}</span>
+                {props.btnName && <span className="p-4">{props.btnName}</span>}
             </button>
             <Modal
                 aria-labelledby="unstyled-modal-title"

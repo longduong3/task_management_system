@@ -23,3 +23,6 @@
 .recent-item:hover:after {
   transform: scale(3.5)
 }
+.overflow-d-none::-webkit-scrollbar {
+  display: none;
+}
