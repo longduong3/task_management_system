@@ -1,4 +1,3 @@
-import loginLogo from '../../assets/login_img.svg'
 import '../../App.css'
 import Card from '../../components/atoms/card'
 import {Typography} from "@mui/material";
@@ -6,16 +5,7 @@ import {Typography} from "@mui/material";
 function Home() {
     return (
         <div className="flex flex-col w-full h-full overflow-auto text-gray-700 bg-gradient-to-tr bg-white p-5">
-            <div className="title-task-board flex items-end justify-end pb-10">
-                <div className="flex gap-4">
-                    <div className="flex flex-col items-end">
-                        <span className="font-bold">Dylan Hunter</span>
-                        <span className="text-sm text-end">Admin Profile</span>
-                    </div>
-                    <img className="w-14 h-14 ml-auto rounded-full border" src='https://randomuser.me/api/portraits/women/26.jpg'/>
-                </div>
-            </div>
-            <div className="px-10">
+            <div className="">
                 <div className="title-task-management border-b">
                     <Typography variant="h5">Task Progress</Typography>
                 </div>
@@ -123,7 +113,7 @@ function Home() {
 
             </div>
             {/*List task*/}
-            <div className="flex flex-grow px-10 mt-4 space-x-6 overflow-auto">
+            <div className="flex flex-grow mt-4 space-x-6 overflow-auto">
                 <div className="flex flex-col flex-shrink-0 w-72">
                     <div className="flex items-center flex-shrink-0 h-10 px-2">
                         <span className="block text-sm font-semibold">Backlog</span>
