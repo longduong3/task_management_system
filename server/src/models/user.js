@@ -1,18 +1,20 @@
 'use strict';
-const {
-  Model
-} = require('sequelize');
-module.exports = (sequelize, DataTypes) => {
+const { Model, DataTypes } = require('sequelize'); // Import Model và DataTypes từ sequelize
+
+module.exports = (sequelize) => {
   class User extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
     static associate(models) {
-      // define association here
+      // Thiết lập quan hệ n-n giữa User và Workspace thông qua RefWorkspaceUser
+      User.belongsToMany(models.Workspace, {
+        through: models.RefWorkspaceUser, // Sử dụng bảng phụ RefWorkspaceUser
+        as: 'workspaces',                 // Alias khi truy vấn
+        foreignKey: 'user_id',            // Khoá ngoại từ bảng RefWorkspaceUser
+        otherKey: 'workspace_id'          // Khoá ngoại từ bảng RefWorkspaceUser trỏ đến Workspace
+      });
     }
   };
+
+  // Khởi tạo model User với sequelize
   User.init({
     email: DataTypes.STRING,
     password: DataTypes.STRING,
@@ -22,6 +24,9 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'User',
+    tableName: 'user',
+    timestamps: true,
   });
+
   return User;
 };

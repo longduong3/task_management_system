@@ -10,7 +10,8 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      // define association here
+      RefWorkspaceUser.belongsTo(models.User, { foreignKey: 'user_id' });
+      RefWorkspaceUser.belongsTo(models.Workspace, { foreignKey: 'workspace_id' });
     }
   };
   RefWorkspaceUser.init({
@@ -20,6 +21,7 @@ module.exports = (sequelize, DataTypes) => {
     joined_at: DataTypes.DATE,
   }, {
     sequelize,
+    tableName: 'ref_workspace_user',
     modelName: 'RefWorkspaceUser',
   });
   return RefWorkspaceUser;

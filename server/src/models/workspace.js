@@ -10,7 +10,13 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      // define association here
+      // Thiết lập quan hệ belongsToMany với User thông qua RefWorkspaceUser
+      Workspace.belongsToMany(models.User, {
+        through: models.RefWorkspaceUser, // Sử dụng bảng phụ RefWorkspaceUser
+        as: 'users',                      // Alias khi truy vấn
+        foreignKey: 'workspace_id',       // Khoá ngoại từ bảng RefWorkspaceUser
+        otherKey: 'user_id'               // Khoá ngoại từ bảng RefWorkspaceUser trỏ đến User
+      });
     }
   };
   Workspace.init({
@@ -18,6 +24,7 @@ module.exports = (sequelize, DataTypes) => {
     owner_id: DataTypes.INTEGER,
   }, {
     sequelize,
+    tableName: 'workspace',
     modelName: 'Workspace',
   });
   return Workspace;
