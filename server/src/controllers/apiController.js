@@ -1,4 +1,5 @@
 import { Workspace, RefWorkspaceUser, User } from '../models';
+import bcrypt from 'bcryptjs';
 
 let getAllUsers = async (req, res) => {
     try {
@@ -21,6 +22,7 @@ let createUser = async (req, res) => {
     try {
         const { name, email, password, gender, role } = req.body;
 
+        // Kiểm tra email đã tồn tại
         const existingUser = await User.findOne({ where: { email } });
         if (existingUser) {
             return res.status(400).json({
@@ -28,17 +30,28 @@ let createUser = async (req, res) => {
             });
         }
 
+        // Băm mật khẩu trước khi lưu
+        const salt = await bcrypt.genSalt(10); // Tạo salt
+        const hashedPassword = await bcrypt.hash(password, salt); // Băm mật khẩu
+
+        // Tạo người dùng mới
         const newUser = await User.create({
             name,
             email,
-            password,
+            password: hashedPassword, // Lưu mật khẩu đã băm
             gender,
             role,
         });
 
         return res.status(201).json({
             message: 'Người dùng đã được tạo thành công.',
-            data: newUser,
+            data: {
+                id: newUser.id,
+                name: newUser.name,
+                email: newUser.email,
+                gender: newUser.gender,
+                role: newUser.role,
+            }, // Không trả về mật khẩu
         });
     } catch (error) {
         console.error('Error creating user:', error);
