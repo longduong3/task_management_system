@@ -1,13 +1,13 @@
 import express from 'express';
-import ApiController from "../controllers/apiController";
+import workspaceController from "../controllers/workspaceController";
 import userController from "../controllers/userController";
 
 let router = express.Router();
 
 const initAPIRoute = (app) => {
     router.get('/users', userController.getAllUsers);
-    router.get('/workspaces', ApiController.getAllWorkspaces);
-    router.get('/users/:userId/workspaces', ApiController.getWorkspacesByUserId);
+    router.get('/workspaces', workspaceController.getAllWorkspaces);
+    router.get('/users/:userId/workspaces', workspaceController.getWorkspacesByUserId);
 
     router.post('/create-user', userController.createUser);
     router.post('/login', userController.handleLogin);
