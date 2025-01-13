@@ -1,4 +1,5 @@
 import SideBar from "../sidebar";
+import Header from "../header";
 
 function DefaultLayout({ children, showSidebar }) {
     return (
@@ -8,7 +9,10 @@ function DefaultLayout({ children, showSidebar }) {
                     <SideBar />
                 </div>
             )}
-            <div className="content w-full">{children}</div>
+            <div className="content w-full">
+                <Header/>
+                {children}
+            </div>
         </div>
     );
 }
