@@ -44,7 +44,7 @@ function SpaceItem({ space, isActive, toggleCollapse, onGetDataFromForm, onCreat
     return (
         <li>
             <div className="py-3 flex items-center w-full gap-2 border-b text-black">
-                <ModalCustom>
+                <ModalCustom customStyle="hover:bg-chart-color1 h-10 w-10 text-sm">
                     <div className="title-modal mb-10">
                         <Typography variant="h6">Create List</Typography>
                         <Typography variant="body2" color="textSecondary">
@@ -181,7 +181,7 @@ function SideBar() {
                 <div className="border mt-5" />
                 <div className="list-space flex flex-col">
                     <div className="action-create-space p-5">
-                        <ModalCustom btnName="Create new space" bgColorBtn="bg-chart-color1">
+                        <ModalCustom btnName="Create new space" customStyle="bg-chart-color1">
                             <div className="title-modal mb-10">
                                 <Typography variant="h6">Create Space</Typography>
                                 <Typography variant="body2" color="textSecondary">

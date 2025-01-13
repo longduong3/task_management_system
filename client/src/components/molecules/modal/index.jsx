@@ -13,8 +13,8 @@ export default function ModalCustom(props) {
 
     return (
         <div>
-            <button className={`text-white space-x-2 hover:text-blue-200 focus:outline-none ${props.bgColorBtn} p-3 rounded-xl`}  onClick={handleOpen}>
-                <FontAwesomeIcon icon={faPlus}/>
+            <button className={`text-white space-x-2 hover:text-blue-200 focus:outline-none ${props.customStyle} p-3 rounded-xl`}  onClick={handleOpen}>
+                <FontAwesomeIcon icon={faPlus} className=""/>
                 {props.btnName && <span className="p-4">{props.btnName}</span>}
             </button>
             <Modal
