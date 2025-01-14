@@ -9,6 +9,7 @@ const initAPIRoute = (app) => {
     router.get('/users/:userId/workspaces', ApiController.getWorkspacesByUserId);
 
     router.post('/create-user', ApiController.createUser);
+    router.post('/create-workspace', ApiController.createWorkspace);
 
     return app.use("/api/v1/", router);
 };

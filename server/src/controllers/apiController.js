@@ -124,4 +124,32 @@ let getAllWorkspaces = async (req, res) => {
     }
 };
 
-export default { getAllUsers, createUser, getWorkspacesByUserId, getAllWorkspaces};
+let createWorkspace = async (req, res) => {
+    try {
+        const { name, owner_id } = req.body;
+
+        const existingWorkSpace = await Workspace.findOne({ where: { name } });
+        if (existingWorkSpace) {
+            return res.status(400).json({
+                message: 'Space had been available.',
+            });
+        }
+
+        const newWorkSpace = await Workspace.create({
+            name,
+            owner_id,
+        });
+
+        return res.status(201).json({
+            message: 'Success.',
+            data: newWorkSpace,
+        });
+    } catch (error) {
+        console.error('Error:', error);
+        return res.status(500).json({
+            message: 'Error creating workspace.',
+            error: error.message,
+        });
+    }
+}
+export default { getAllUsers, createUser, getWorkspacesByUserId, getAllWorkspaces, createWorkspace};
