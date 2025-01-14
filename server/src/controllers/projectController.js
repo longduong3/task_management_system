@@ -97,4 +97,68 @@ const getProjectsByWorkspaceId = async (req, res) => {
     }
 };
 
-export default {getProjectsByWorkspaceId};
+const createProject = async (req, res) => {
+    try {
+        const { workspace_id, name, description, status = 'active' } = req.body;
+
+        // Validate input
+        if (!workspace_id || !name) {
+            return res.status(400).json({
+                message: 'Workspace ID và tên project là bắt buộc'
+            });
+        }
+
+        // Kiểm tra workspace tồn tại
+        const workspace = await Workspace.findByPk(workspace_id);
+        if (!workspace) {
+            return res.status(404).json({
+                message: 'Workspace không tồn tại'
+            });
+        }
+
+        // Tạo project mới
+        const project = await Project.create({
+            workspace_id,
+            name,
+            description,
+            status
+        });
+
+        // Tạo các task status mặc định cho project
+        const defaultStatuses = [
+            { name: 'To Do', color: '#E2E8F0', sequence: 1 },
+            { name: 'In Progress', color: '#3182CE', sequence: 2 },
+            { name: 'Done', color: '#48BB78', sequence: 3 }
+        ];
+
+        await Promise.all(defaultStatuses.map(status =>
+            TaskStatus.create({
+                ...status,
+                project_id: project.id
+            })
+        ));
+
+        // Lấy project vừa tạo kèm task statuses
+        const projectWithStatuses = await Project.findOne({
+            where: { id: project.id },
+            include: [{
+                model: TaskStatus,
+                attributes: ['id', 'name', 'color', 'sequence']
+            }]
+        });
+
+        return res.status(201).json({
+            message: 'Tạo project thành công',
+            data: projectWithStatuses
+        });
+
+    } catch (error) {
+        console.error('Error creating project:', error);
+        return res.status(500).json({
+            message: 'Đã xảy ra lỗi khi tạo project',
+            error: error.message
+        });
+    }
+};
+
+export default {getProjectsByWorkspaceId, createProject};
