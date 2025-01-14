@@ -5,7 +5,6 @@ const getProjectsByWorkspaceId = async (req, res) => {
     try {
         const workspaceId = req.params.workspaceId;
 
-        // Kiểm tra workspace có tồn tại không
         const workspace = await Workspace.findByPk(workspaceId);
         if (!workspace) {
             return res.status(404).json({
@@ -13,7 +12,6 @@ const getProjectsByWorkspaceId = async (req, res) => {
             });
         }
 
-        // Lấy danh sách projects với thông tin liên quan
         const projects = await Project.findAll({
             where: {
                 workspace_id: workspaceId,
@@ -50,14 +48,12 @@ const getProjectsByWorkspaceId = async (req, res) => {
             ]
         });
 
-        // Kiểm tra có project nào không
         if (!projects || projects.length === 0) {
             return res.status(404).json({
                 message: 'Không có project nào trong workspace này'
             });
         }
 
-        // Format lại dữ liệu trước khi trả về
         const formattedProjects = projects.map(project => ({
             id: project.id,
             name: project.name,
