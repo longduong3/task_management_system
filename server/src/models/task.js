@@ -36,6 +36,7 @@ module.exports = (sequelize, DataTypes) => {
     due_date: DataTypes.DATE,
   }, {
     sequelize,
+    tableName: 'task',
     modelName: 'Task',
   });
   return Task;

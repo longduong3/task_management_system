@@ -20,6 +20,7 @@ module.exports = (sequelize, DataTypes) => {
     assigned_at: DataTypes.DATE,
   }, {
     sequelize,
+    tableName: 'ref_task_assignees',
     modelName: 'RefTaskAssignees',
   });
   return RefTaskAssignees;

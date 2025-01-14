@@ -21,6 +21,7 @@ module.exports = (sequelize, DataTypes) => {
     end_time: DataTypes.DATE,
   }, {
     sequelize,
+    tableName: 'time_tracking',
     modelName: 'TimeTracking',
   });
   return TimeTracking;

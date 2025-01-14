@@ -20,6 +20,7 @@ module.exports = (sequelize, DataTypes) => {
     uploaded_by: DataTypes.INTEGER,
   }, {
     sequelize,
+    tableName: 'attachment',
     modelName: 'Attachment',
   });
   return Attachment;

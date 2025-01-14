@@ -21,6 +21,7 @@ module.exports = (sequelize, DataTypes) => {
     sequence: DataTypes.INTEGER,
   }, {
     sequelize,
+    tableName: 'task_status',
     modelName: 'TaskStatus',
   });
   return TaskStatus;

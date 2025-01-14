@@ -22,6 +22,7 @@ module.exports = (sequelize, DataTypes) => {
     status: DataTypes.ENUM('active', 'archived'),
   }, {
     sequelize,
+    tableName: 'project',
     modelName: 'Project',
   });
   return Project;
