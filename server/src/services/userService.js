@@ -31,7 +31,10 @@ let handleUserLogin = (email, password) => {
                                 expiresIn: process.env.JWT_EXPIRES
                             }
                         );
-                        return { access_token};
+                        userData.errCode = 0;
+                        userData.errMessage = 'OK';
+                        userData.access_token = access_token;
+                        resolve(userData);
                     } else {
                         userData.errCode = 3;
                         userData.errMessage = "Wrong password";
