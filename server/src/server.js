@@ -1,4 +1,5 @@
 import express from 'express';
+const cors = require('cors');
 import bodyParser from 'body-parser';
 import configViewEngine from './config/viewEngine.js';
 import initWebRoutes from './route/web.js';
@@ -9,6 +10,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const app = express();
+app.use(cors());
 
 // Configure body parser
 app.use(bodyParser.json());
