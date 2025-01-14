@@ -1,53 +1,6 @@
-import { Workspace, RefWorkspaceUser, User } from '../models';
+import { Workspace, User } from '../models';
+import bcrypt from 'bcryptjs';
 
-let getAllUsers = async (req, res) => {
-    try {
-        const users = await User.findAll();
-
-        return res.status(200).json({
-            message: 'Danh sách người dùng',
-            data: users
-        });
-    } catch (error) {
-        console.error('Error fetching users:', error);
-        return res.status(500).json({
-            message: 'Lỗi khi lấy dữ liệu người dùng',
-            error: error.message
-        });
-    }
-};
-
-let createUser = async (req, res) => {
-    try {
-        const { name, email, password, gender, role } = req.body;
-
-        const existingUser = await User.findOne({ where: { email } });
-        if (existingUser) {
-            return res.status(400).json({
-                message: 'Email đã tồn tại.',
-            });
-        }
-
-        const newUser = await User.create({
-            name,
-            email,
-            password,
-            gender,
-            role,
-        });
-
-        return res.status(201).json({
-            message: 'Người dùng đã được tạo thành công.',
-            data: newUser,
-        });
-    } catch (error) {
-        console.error('Error creating user:', error);
-        return res.status(500).json({
-            message: 'Đã xảy ra lỗi khi tạo người dùng.',
-            error: error.message,
-        });
-    }
-};
 
 let getWorkspacesByUserId = async (req, res) => {
     try {
@@ -152,4 +105,4 @@ let createWorkspace = async (req, res) => {
         });
     }
 }
-export default { getAllUsers, createUser, getWorkspacesByUserId, getAllWorkspaces, createWorkspace};
+export default {getWorkspacesByUserId, getAllWorkspaces, createWorkspace};
