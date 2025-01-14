@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, {useEffect, useState} from "react";
+import apiCall from '../../../../services/axios.jsx';
 import '../../../../App.css';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {faHome, faListCheck, faPlus, faList} from '@fortawesome/free-solid-svg-icons';
@@ -67,7 +68,7 @@ function SpaceItem({ space, isActive, toggleCollapse, onGetDataFromForm, onCreat
                     onClick={toggleCollapse}
                 >
                     <div className="title-icon flex gap-4 items-center">
-                        {space.nameSpace}
+                        {space.name}
                     </div>
                     <span
                         className={`transform transition-transform ${
@@ -90,7 +91,7 @@ function SpaceItem({ space, isActive, toggleCollapse, onGetDataFromForm, onCreat
                         onClick={() => navigate('/list')}
                     >
                         <FontAwesomeIcon icon={faList}/>
-                        <span>{item.nameSpace}</span>
+                        <span>{item.name}</span>
                     </div>
                 ))}
             </div>
@@ -104,6 +105,7 @@ function SideBar() {
     const [location, setLocation] = useState('');
     const [nameSpace, setNameSpace] = useState('');
     const [spaces, setSpaces] = useState([]);
+    const [nameProjects, setNameProjects] = useState([]);
     const [list, setList] = useState([]);
     const data = [{ value: '1', text: '1' }, { value: '2', text: '2' }];
 
@@ -113,6 +115,25 @@ function SideBar() {
         { icon: faListCheck, title: "Item 3", content: "This is the content of Item 3" },
     ];
 
+    useEffect(() => {
+        const getWorkspaces = async () => {
+            const spacesData = await getWorkSpace();
+            setSpaces(spacesData);
+        };
+
+        getWorkspaces();
+    }, []);
+
+    const getWorkSpace = async () => {
+        try {
+            const response = await apiCall.get('/workspaces');
+            return response.data ? response.data.data : [];
+        } catch (error) {
+            console.error('Error:', error);
+            return [];
+        }
+    }
+
     const toggleCollapse = (index) => {
         setActiveIndex(activeIndex === index ? null : index);
     };
@@ -121,16 +142,28 @@ function SideBar() {
         setActiveSpaceIndex(activeSpaceIndex === index ? null : index);
     };
 
-    const handleNameSpaceChange = (e) => setNameSpace(e.target.value);
+    const handleNameSpaceChange = (e) => setNameSpace({
+        name: e.target.value,
+        owned_id: 1
+    });
 
-    const onCreateList = () => {
-        setList([...list, { location, nameSpace }]);
+    const onCreateList = (ev) => {
+        setList([...list, nameProjects]);
         setLocation('');
         setNameSpace('');
     }
 
-    const handleCreateSpace = () => {
-        setSpaces([...spaces, { location, nameSpace }]);
+    const handleCreateSpace = async () => {
+        setSpaces([...spaces, nameSpace]);
+        try {
+            const response = await apiCall.post('/create-workspace', {
+                name: nameSpace.name,
+                owner_id: 1
+            });
+        } catch (error) {
+            console.error('Error:', error);
+            return [];
+        }
         setLocation('');
         setNameSpace('');
     };
@@ -211,7 +244,9 @@ function SideBar() {
                                 isActive={activeSpaceIndex === index}
                                 toggleCollapse={() => toggleSpaceCollapse(index)}
                                 onGetDataFromForm={(e) =>
-                                    setNameSpace(e.target.value)
+                                    setNameProjects({
+                                        name: e.target.value
+                                    })
                                 }
                                 onCreateList={onCreateList}
                                 list={list}

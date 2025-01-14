@@ -14,7 +14,8 @@ export default {
       background: {
         'primary': '#4C3575',
         'secondary': '#F19828',
-        'chart-color1': '#e05170'
+        'chart-color1': '#e05170',
+        'chart-color2': '#ece0ef',
       },
       boxShadow: {
         custom: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
