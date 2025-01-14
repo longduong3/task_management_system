@@ -21,11 +21,9 @@ module.exports = {
         type: Sequelize.STRING
       },
       gender: {
-        allowNull: false,
         type: Sequelize.ENUM('male', 'female', 'individual')
       },
       role: {
-        allowNull: false,
         type: Sequelize.ENUM('owner', 'admin', 'member')
       },
       createdAt: {

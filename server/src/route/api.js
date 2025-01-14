@@ -16,6 +16,8 @@ const initAPIRoute = (app) => {
     router.post('/create-user', userController.createUser);
     router.post('/login', userController.handleLogin);
     router.post('/create-workspace', workspaceController.createWorkspace);
+    router.post('/create-project', projectController.createProject);
+    router.post('/create-task', taskController.createTask);
 
     return app.use("/api/v1/", router);
 };
