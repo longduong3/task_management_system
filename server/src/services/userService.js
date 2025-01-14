@@ -32,8 +32,10 @@ let handleUserLogin = (email, password) => {
                             }
                         );
                         userData.errCode = 0;
-                        userData.errMessage = 'OK';
+                        userData.errMessage = 'Login successful!';
                         userData.access_token = access_token;
+                        userData.name = user.name;
+                        userData.email = user.email;
                         resolve(userData);
                     } else {
                         userData.errCode = 3;
