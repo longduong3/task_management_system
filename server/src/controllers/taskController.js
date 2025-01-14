@@ -57,21 +57,19 @@ const createTask = async (req, res) => {
             project_id,
             name,
             description,
-            assignee_ids, // array of user ids
+            assignee_ids,
             status_id,
             priority = 'normal',
             due_date,
             parent_id
         } = req.body;
 
-        // Validate input
         if (!project_id || !name || !status_id) {
             return res.status(400).json({
                 message: 'Project ID, tên task và status là bắt buộc'
             });
         }
 
-        // Kiểm tra project tồn tại
         const project = await Project.findByPk(project_id);
         if (!project) {
             return res.status(404).json({
@@ -79,7 +77,6 @@ const createTask = async (req, res) => {
             });
         }
 
-        // Kiểm tra status tồn tại và thuộc project
         const taskStatus = await TaskStatus.findOne({
             where: {
                 id: status_id,
@@ -92,12 +89,11 @@ const createTask = async (req, res) => {
             });
         }
 
-        // Nếu có parent_id, kiểm tra parent task tồn tại
         if (parent_id) {
             const parentTask = await Task.findOne({
                 where: {
                     id: parent_id,
-                    project_id // Đảm bảo parent task cùng project
+                    project_id
                 }
             });
             if (!parentTask) {
@@ -107,7 +103,6 @@ const createTask = async (req, res) => {
             }
         }
 
-        // Tạo task mới
         const task = await Task.create({
             project_id,
             name,
@@ -118,7 +113,6 @@ const createTask = async (req, res) => {
             parent_id
         });
 
-        // Nếu có assignees, tạo các liên kết
         if (assignee_ids && assignee_ids.length > 0) {
             const assigneeRecords = assignee_ids.map(assignee_id => ({
                 task_id: task.id,
@@ -129,7 +123,6 @@ const createTask = async (req, res) => {
             await RefTaskAssignees.bulkCreate(assigneeRecords);
         }
 
-        // Lấy task vừa tạo kèm thông tin liên quan
         const taskWithDetails = await Task.findOne({
             where: { id: task.id },
             include: [

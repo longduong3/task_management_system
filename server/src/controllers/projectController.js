@@ -101,14 +101,12 @@ const createProject = async (req, res) => {
     try {
         const { workspace_id, name, description, status = 'active' } = req.body;
 
-        // Validate input
         if (!workspace_id || !name) {
             return res.status(400).json({
                 message: 'Workspace ID và tên project là bắt buộc'
             });
         }
 
-        // Kiểm tra workspace tồn tại
         const workspace = await Workspace.findByPk(workspace_id);
         if (!workspace) {
             return res.status(404).json({
@@ -116,7 +114,6 @@ const createProject = async (req, res) => {
             });
         }
 
-        // Tạo project mới
         const project = await Project.create({
             workspace_id,
             name,
@@ -124,7 +121,6 @@ const createProject = async (req, res) => {
             status
         });
 
-        // Tạo các task status mặc định cho project
         const defaultStatuses = [
             { name: 'To Do', color: '#E2E8F0', sequence: 1 },
             { name: 'In Progress', color: '#3182CE', sequence: 2 },
@@ -138,7 +134,6 @@ const createProject = async (req, res) => {
             })
         ));
 
-        // Lấy project vừa tạo kèm task statuses
         const projectWithStatuses = await Project.findOne({
             where: { id: project.id },
             include: [{

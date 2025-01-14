@@ -1,8 +1,12 @@
 import { User } from '../models';
 import bcrypt from "bcryptjs";
+import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 let handleUserLogin = (email, password) => {
-    return new Promise(async(resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
         try {
             let userData = {};
             let isExist = await checkUserEmail(email);
@@ -12,28 +16,43 @@ let handleUserLogin = (email, password) => {
                 });
                 if (user) {
                     let check = await bcrypt.compare(password, user.password);
-                    if(check) {
-                        userData.errCode = 0;
-                        userData.errMessage = 'OK';
-                        userData.user = user;
-                    }else {
+                    if (check) {
+                        if (!process.env.JWT_SECRET || !process.env.JWT_EXPIRES) {
+                            throw new Error('JWT configuration missing in .env file');
+                        }
+                        const payload = {
+                            email: user.email,
+                            name: user.name
+                        };
+                        const access_token = jwt.sign(
+                            payload,
+                            process.env.JWT_SECRET,
+                            {
+                                expiresIn: process.env.JWT_EXPIRES
+                            }
+                        );
+                        return { access_token};
+                    } else {
                         userData.errCode = 3;
                         userData.errMessage = "Wrong password";
+                        resolve(userData);
                     }
                 } else {
                     userData.errCode = 2;
-                    userData.errMessage = `User's not found`;
+                    userData.errMessage = "User's not found";
+                    resolve(userData);
                 }
-            } else{
+            } else {
                 userData.errCode = 1;
-                userData.errMessage = `Your's Email isn't exist in your system. Please try again.`;
+                userData.errMessage = "Your email doesn't exist in the system. Please try again.";
+                resolve(userData);
             }
-            resolve(userData)
         } catch (e) {
+            console.error('Error in handleUserLogin:', e.message);
             reject(e);
         }
-    })
-}
+    });
+};
 
 let checkUserEmail = async (email) => {
     try {
@@ -42,8 +61,9 @@ let checkUserEmail = async (email) => {
         });
         return !!user;
     } catch (error) {
+        console.error('Error in checkUserEmail:', error.message);
         throw new Error(error.message || 'An error occurred while checking email');
     }
 };
 
-export default { handleUserLogin, checkUserEmail};
+export default { handleUserLogin, checkUserEmail };
