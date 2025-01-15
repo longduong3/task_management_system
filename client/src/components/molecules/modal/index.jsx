@@ -8,12 +8,17 @@ import {faList, faPlus} from "@fortawesome/free-solid-svg-icons";
 
 export default function ModalCustom(props) {
     const [open, setOpen] = React.useState(false);
-    const handleOpen = () => setOpen(true);
+    const handleOpen = (ev) => {
+        if (props.onHandleOpen && typeof props.onHandleOpen === "function") {
+            props.onHandleOpen(ev);
+        }
+        setOpen(true)
+    };
     const handleClose = () => setOpen(false);
 
     return (
         <div>
-            <button className={`text-white space-x-2 hover:text-blue-200 focus:outline-none ${props.customStyle} p-3 rounded-xl`}  onClick={handleOpen}>
+            <button data-space={props.idSpace} className={`text-white space-x-2 hover:text-blue-200 focus:outline-none ${props.customStyle} p-3 rounded-xl`}  onClick={handleOpen}>
                 <FontAwesomeIcon icon={faPlus} className=""/>
                 {props.btnName && <span className="p-4">{props.btnName}</span>}
             </button>
@@ -30,6 +35,10 @@ export default function ModalCustom(props) {
             </Modal>
         </div>
     );
+}
+
+ModalCustom.defaultProps = {
+    onHandleOpen: () => {},
 }
 
 const Backdrop = React.forwardRef((props, ref) => {
