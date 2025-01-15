@@ -1,4 +1,4 @@
-import { Workspace, User } from '../models';
+import { Workspace, User, RefWorkspaceUser} from '../models';
 import bcrypt from 'bcryptjs';
 
 
@@ -88,15 +88,36 @@ let createWorkspace = async (req, res) => {
             });
         }
 
-        const newWorkSpace = await Workspace.create({
-            name,
-            owner_id,
+        const result = await sequelize.transaction(async (t) => {
+            const newWorkSpace = await Workspace.create({
+                name,
+                owner_id,
+            }, { transaction: t });
+
+            await RefWorkspaceUser.create({
+                workspace_id: newWorkSpace.id,
+                user_id: owner_id,
+                role: 'owner',
+                joined_at: new Date()
+            }, { transaction: t });
+
+            return newWorkSpace;
+        });
+
+        const workspaceWithUser = await Workspace.findOne({
+            where: { id: result.id },
+            include: [{
+                model: User,
+                as: 'users',
+                through: { attributes: ['role', 'joined_at'] }
+            }]
         });
 
         return res.status(201).json({
             message: 'Success.',
-            data: newWorkSpace,
+            data: workspaceWithUser,
         });
+
     } catch (error) {
         console.error('Error:', error);
         return res.status(500).json({
