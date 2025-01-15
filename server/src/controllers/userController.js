@@ -77,6 +77,7 @@ let handleLogin = async (req, res) => {
         message: userData.errMessage,
         access_token: userData.access_token,
         user: {
+            uId: userData.id,
             name: userData.name,
             email: userData.email,
         }

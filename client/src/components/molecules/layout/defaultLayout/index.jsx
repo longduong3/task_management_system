@@ -10,7 +10,9 @@ function DefaultLayout({ children, showSidebar }) {
                 </div>
             )}
             <div className="content w-full">
-                <Header/>
+                {showSidebar && (
+                    <Header/>
+                )}
                 {children}
             </div>
         </div>

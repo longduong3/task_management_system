@@ -95,7 +95,11 @@ let createWorkspace = async (req, res) => {
 
         return res.status(201).json({
             message: 'Success.',
-            data: newWorkSpace,
+            data: {
+                id: newWorkSpace.id,
+                name: newWorkSpace.name,
+                owner_id: newWorkSpace.owner_id,
+            },
         });
     } catch (error) {
         console.error('Error:', error);

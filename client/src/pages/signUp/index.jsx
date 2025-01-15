@@ -4,19 +4,20 @@ import { useNavigate } from "react-router-dom";
 import {useState} from "react";
 import apiCall from "../../services/axios.jsx";
 
-function Login() {
+export default function SignUp() {
+    const [fullName, setFullName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const navigate = useNavigate();
-    const doLogin = async () => {
+    const doSignUp = async () => {
         try {
-            const response = await apiCall.post('/login', {
+            const response = await apiCall.post('/create-user', {
+                name: fullName,
                 email: email,
                 password: password,
             });
-            alert(response.data.message);
-            localStorage.setItem('session', JSON.stringify(response.data));
-            navigate("/home");
+            alert('Sign up successfully!');
+            navigate('/login')
         } catch (error) {
             console.error('Error:', error);
             return [];
@@ -25,7 +26,6 @@ function Login() {
     const onChangeInput = (ev, setName) => {
         setName(ev.target.value);
     }
-
     return (
         <div className="login-form w-full h-full flex items-center justify-center">
             <div className="container grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -55,53 +55,52 @@ function Login() {
                     <div className="p-10 space-y-5 bg-color text-white rounded h-full">
                         <input type="hidden" name="_token"/>
                         <div className="">
-                            <h1 className="text-3xl">Sign in</h1>
+                            <h1 className="text-3xl text-center p-4">Sign Up</h1>
                         </div>
                         <div className="sm:col-span-4">
                             <div className="mt-2">
                                 <div
                                     className="flex items-center rounded-md bg-white pl-3 outline outline-1 -outline-offset-1 outline-gray-300 focus-within:outline focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-indigo-600">
-                                    <div className="shrink-0 select-none text-base text-gray-500 sm:text-sm/6">Username:
+                                    <div className="shrink-0 select-none text-base text-gray-500 sm:text-sm/6">Fullname:
                                     </div>
-                                    <input type="text" name="username" id="username"
-                                           className="block min-w-0 grow py-3 pl-1 pr-3 text-base text-gray-900 placeholder:text-gray-400 focus:outline focus:outline-0 sm:text-sm/6"
+                                    <input type="text" name="fullname" id="fullname"
+                                           className="block min-w-0 grow py-3 pl-1 pr-3 text-base text-gray-900 placeholder:text-gray-400 focus:outline focus:outline-0 sm:text-sm/6 rounded-xl"
+                                           placeholder="" onChange={(ev) => onChangeInput(ev, setFullName)}/>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="sm:col-span-4">
+                            <div className="mt-2">
+                                <div
+                                    className="flex items-center rounded-md bg-white pl-3 outline outline-1 -outline-offset-1 outline-gray-300 focus-within:outline focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-indigo-600">
+                                    <div className="shrink-0 select-none text-base text-gray-500 sm:text-sm/6">Email:
+                                    </div>
+                                    <input type="text" name="email" id="email"
+                                           className="block min-w-0 grow py-3 pl-1 pr-3 text-base text-gray-900 placeholder:text-gray-400 focus:outline focus:outline-0 sm:text-sm/6 rounded-xl"
                                            placeholder="" onChange={(ev) => onChangeInput(ev, setEmail)}/>
                                 </div>
                             </div>
                         </div>
                         <div className="sm:col-span-4">
-                            <div className="text-end">
-                                <span className="text-sm font-normal">
-                                    <a className="text-secondary">ForgotPassword?</a>
-                                </span>
-                            </div>
                             <div className="mt-2">
                                 <div
                                     className="flex items-center rounded-md bg-white pl-3 outline outline-1 -outline-offset-1 outline-gray-300 focus-within:outline focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-indigo-600">
-                                    <div
-                                        className="shrink-0 select-none text-base text-gray-500 sm:text-sm/6">Password:
+                                    <div className="shrink-0 select-none text-base text-gray-500 sm:text-sm/6">Password:
                                     </div>
-                                    <input type="password" name="password" id="password"
-                                           className="block min-w-0 grow py-3 pl-1 pr-3 text-base text-gray-900 placeholder:text-gray-400 focus:outline focus:outline-0 sm:text-sm/6"
+                                    <input type="text" name="password" id="password"
+                                           className="block min-w-0 grow py-3 pl-1 pr-3 text-base text-gray-900 placeholder:text-gray-400 focus:outline focus:outline-0 sm:text-sm/6 rounded-xl"
                                            placeholder="" onChange={(ev) => onChangeInput(ev, setPassword)}/>
                                 </div>
                             </div>
                         </div>
                         <div className="">
-                            <div className="form-check text-start space-x-2">
-                                <input className="form-check-input" type="checkbox" value=""
-                                       id="flexCheckDefault"/>
-                                <label className="form-check-label" htmlFor="flexCheckDefault">
-                                    Remember me
-                                </label>
-                            </div>
-                        </div>
-                        <div className="">
-                            <button type="submit" className="text-black bg-white p-4 rounded" onClick={() => doLogin()}>SIGN IN</button>
+                            <button type="submit" className="text-black bg-white p-4 rounded"
+                                    onClick={() => doSignUp()}>SIGN UP
+                            </button>
                         </div>
                         <div className="">
                             <span className="text-muted">Don't have an account yet? <a
-                                className="text-secondary" onClick={() => {navigate("/signUp");}}>Sign up here</a></span>
+                                className="text-secondary">Sign up here</a></span>
                         </div>
                     </div>
                 </div>
@@ -109,5 +108,3 @@ function Login() {
         </div>
     )
 }
-
-export default Login
