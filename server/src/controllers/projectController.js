@@ -1,5 +1,5 @@
 import { Workspace, Project, TaskStatus, Task, User, RefTaskAssignees } from '../models';
-
+import { sequelize } from '../models';
 
 const getProjectsByWorkspaceId = async (req, res) => {
     try {
@@ -156,4 +156,151 @@ const createProject = async (req, res) => {
     }
 };
 
-export default {getProjectsByWorkspaceId, createProject};
+const checkUserProjectPermission = async (userId, workspaceId) => {
+    const userWorkspace = await RefWorkspaceUser.findOne({
+        where: {
+            user_id: userId,
+            workspace_id: workspaceId
+        }
+    });
+    if (!userWorkspace) {
+        return false;
+    }
+    return ['owner', 'admin'].includes(userWorkspace.role);
+};
+
+const updateProject = async (req, res) => {
+    try {
+        const projectId = req.params.projectId;
+        const userId = req.user.id;
+        const { name, description, status } = req.body;
+
+        if (!name || name.trim().length === 0) {
+            return res.status(400).json({
+                message: 'Tên project không được để trống'
+            });
+        }
+
+        const project = await Project.findByPk(projectId);
+        if (!project) {
+            return res.status(404).json({
+                message: 'Project không tồn tại'
+            });
+        }
+
+        const workspace = await Workspace.findByPk(project.workspace_id);
+        if (!workspace) {
+            return res.status(404).json({
+                message: 'Workspace không tồn tại'
+            });
+        }
+
+        const hasPermission = await checkUserProjectPermission(userId, workspace.id);
+        if (!hasPermission) {
+            return res.status(403).json({
+                message: 'Bạn không có quyền cập nhật project này'
+            });
+        }
+
+        if (status && !['active', 'archived'].includes(status)) {
+            return res.status(400).json({
+                message: 'Status không hợp lệ. Chỉ chấp nhận giá trị "active" hoặc "archived"'
+            });
+        }
+
+        const existingProject = await Project.findOne({
+            where: {
+                workspace_id: workspace.id,
+                name: name,
+                id: { [Op.ne]: projectId }
+            }
+        });
+
+        if (existingProject) {
+            return res.status(400).json({
+                message: 'Tên project đã tồn tại trong workspace này'
+            });
+        }
+
+        const updatedProject = await project.update({
+            name: name || project.name,
+            description: description || project.description,
+            status: status || project.status
+        });
+
+        const projectWithDetails = await Project.findOne({
+            where: { id: projectId },
+            include: [{
+                model: TaskStatus,
+                attributes: ['id', 'name', 'color', 'sequence']
+            }],
+            attributes: [
+                'id', 'name', 'description', 'status',
+                'createdAt', 'updatedAt'
+            ]
+        });
+
+        return res.status(200).json({
+            message: 'Cập nhật project thành công',
+            data: projectWithDetails
+        });
+
+    } catch (error) {
+        console.error('Error updating project:', error);
+        return res.status(500).json({
+            message: 'Đã xảy ra lỗi khi cập nhật project',
+            error: error.message
+        });
+    }
+};
+
+const deleteProject = async (req, res) => {
+    try {
+        const projectId = req.params.projectId;
+        const userId = req.user.id;
+        const project = await Project.findByPk(projectId);
+        if (!project) {
+            return res.status(404).json({
+                message: 'Project không tồn tại'
+            });
+        }
+        const workspace = await Workspace.findByPk(project.workspace_id);
+        if (!workspace) {
+            return res.status(404).json({
+                message: 'Workspace không tồn tại'
+            });
+        }
+        const hasPermission = await checkUserProjectPermission(userId, workspace.id);
+        if (!hasPermission) {
+            return res.status(403).json({
+                message: 'Bạn không có quyền xóa project này'
+            });
+        }
+        const tasksCount = await Task.count({
+            where: { project_id: projectId }
+        });
+        if (tasksCount > 0) {
+            return res.status(400).json({
+                message: 'Không thể xóa project đang có tasks. Vui lòng xóa hết tasks trước'
+            });
+        }
+        await sequelize.transaction(async (t) => {
+            await TaskStatus.destroy({
+                where: { project_id: projectId },
+                transaction: t
+            });
+            await project.destroy({ transaction: t });
+        });
+        return res.status(200).json({
+            message: 'Xóa project thành công'
+        });
+    } catch (error) {
+        console.error('Error deleting project:', error);
+        return res.status(500).json({
+            message: 'Đã xảy ra lỗi khi xóa project',
+            error: error.message
+        });
+    }
+};
+
+export default {getProjectsByWorkspaceId, createProject, updateProject, deleteProject};

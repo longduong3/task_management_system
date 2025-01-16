@@ -1,6 +1,7 @@
 import { Workspace, User, RefWorkspaceUser} from '../models';
 import bcrypt from 'bcryptjs';
-
+import { sequelize } from '../models';
+import { Op } from 'sequelize';
 
 let getWorkspacesByUserId = async (req, res) => {
     try {
@@ -126,4 +127,139 @@ let createWorkspace = async (req, res) => {
         });
     }
 }
-export default {getWorkspacesByUserId, getAllWorkspaces, createWorkspace};
+
+// Thêm hàm updateWorkspace
+const updateWorkspace = async (req, res) => {
+    try {
+        const workspaceId = req.params.workspaceId;
+        const userId = req.user.id;
+        const { name } = req.body;
+
+        if (!name || name.trim().length === 0) {
+            return res.status(400).json({
+                message: 'Tên workspace không được để trống'
+            });
+        }
+
+        const workspace = await Workspace.findByPk(workspaceId);
+        if (!workspace) {
+            return res.status(404).json({
+                message: 'Workspace không tồn tại'
+            });
+        }
+
+        const userWorkspace = await RefWorkspaceUser.findOne({
+            where: {
+                workspace_id: workspaceId,
+                user_id: userId,
+                role: 'owner'
+            }
+        });
+
+        if (!userWorkspace) {
+            return res.status(403).json({
+                message: 'Bạn không có quyền sửa workspace này'
+            });
+        }
+
+        const existingWorkspace = await Workspace.findOne({
+            where: {
+                name: name,
+                id: { [Op.ne]: workspaceId }
+            }
+        });
+
+        if (existingWorkspace) {
+            return res.status(400).json({
+                message: 'Tên workspace đã tồn tại'
+            });
+        }
+
+        await workspace.update({ name });
+
+        const updatedWorkspace = await Workspace.findOne({
+            where: { id: workspaceId },
+            include: [{
+                model: User,
+                as: 'users',
+                through: {
+                    attributes: ['role', 'joined_at']
+                },
+                attributes: ['id', 'name', 'email']
+            }]
+        });
+
+        return res.status(200).json({
+            message: 'Cập nhật workspace thành công',
+            data: updatedWorkspace
+        });
+
+    } catch (error) {
+        console.error('Error updating workspace:', error);
+        return res.status(500).json({
+            message: 'Đã xảy ra lỗi khi cập nhật workspace',
+            error: error.message
+        });
+    }
+};
+
+const deleteWorkspace = async (req, res) => {
+    try {
+        const workspaceId = req.params.workspaceId;
+        const userId = req.user.id;
+
+        const workspace = await Workspace.findByPk(workspaceId);
+        if (!workspace) {
+            return res.status(404).json({
+                message: 'Workspace không tồn tại'
+            });
+        }
+
+        const userWorkspace = await RefWorkspaceUser.findOne({
+            where: {
+                workspace_id: workspaceId,
+                user_id: userId,
+                role: 'owner'
+            }
+        });
+
+        if (!userWorkspace) {
+            return res.status(403).json({
+                message: 'Bạn không có quyền xóa workspace này'
+            });
+        }
+
+        const projects = await Project.findAll({
+            where: { workspace_id: workspaceId }
+        });
+
+        if (projects.length > 0) {
+            const projectNames = projects.map(p => p.name).join(', ');
+            return res.status(400).json({
+                message: `Không thể xóa workspace đang có projects: ${projectNames}. Vui lòng xóa projects trước.`
+            });
+        }
+
+        await sequelize.transaction(async (t) => {
+            await RefWorkspaceUser.destroy({
+                where: { workspace_id: workspaceId },
+                transaction: t
+            });
+
+            await workspace.destroy({ transaction: t });
+        });
+
+        return res.status(200).json({
+            message: 'Xóa workspace thành công'
+        });
+
+    } catch (error) {
+        console.error('Error deleting workspace:', error);
+        return res.status(500).json({
+            message: 'Đã xảy ra lỗi khi xóa workspace',
+            error: error.message
+        });
+    }
+};
+
+export default {getWorkspacesByUserId, getAllWorkspaces, createWorkspace, updateWorkspace, deleteWorkspace};

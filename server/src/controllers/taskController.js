@@ -8,7 +8,6 @@ const getTasksByProjectId = async (req, res) => {
 
         const where = { project_id: projectId };
 
-        // Thêm filter nếu có
         if (status) where.status_id = status;
         if (priority) where.priority = priority;
 

@@ -2,7 +2,6 @@ import express from 'express';
 const cors = require('cors');
 import bodyParser from 'body-parser';
 import configViewEngine from './config/viewEngine.js';
-import initWebRoutes from './route/web.js';
 import initAPIRoute from "./route/api";
 const { connectDB } = require('./config/connectDB');
 import dotenv from 'dotenv';
@@ -18,9 +17,6 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 // Set up view engine
 configViewEngine(app);
-
-// Initialize web routes
-initWebRoutes(app);
 
 // Initialize API routes
 initAPIRoute(app);
