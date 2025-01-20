@@ -1,4 +1,4 @@
-import { Workspace, User, RefWorkspaceUser} from '../models';
+import { Workspace, User, RefWorkspaceUser, Project} from '../models';
 import bcrypt from 'bcryptjs';
 import { sequelize } from '../models';
 import { Op } from 'sequelize';
@@ -12,6 +12,7 @@ let getWorkspacesByUserId = async (req, res) => {
                 message: 'User không tồn tại.'
             });
         }
+
         const user_with_workspaces = await User.findOne({
             where: { id: userId },
             include: [{
@@ -20,7 +21,19 @@ let getWorkspacesByUserId = async (req, res) => {
                 through: {
                     attributes: ['role', 'joined_at'],
                 },
-                attributes: ['id', 'name']
+                attributes: ['id', 'name'],
+                include: [{
+                    model: Project,
+                    as: 'projects',
+                    attributes: [
+                        'id',
+                        'name',
+                        'description',
+                        'status',
+                        'createdAt',
+                        'updatedAt'
+                    ]
+                }]
             }]
         });
 
@@ -35,23 +48,29 @@ let getWorkspacesByUserId = async (req, res) => {
             workspace_name: workspace.name,
             role: workspace.RefWorkspaceUser.role,
             joined_at: workspace.RefWorkspaceUser.joined_at,
+            projects: workspace.projects.map(project => ({
+                id: project.id,
+                name: project.name,
+                description: project.description,
+                status: project.status,
+                created_at: project.createdAt,
+                updated_at: project.updatedAt
+            }))
         }));
 
         return res.status(200).json({
-            message: 'Danh sách workspace của user.',
+            message: 'Danh sách workspace và projects của user.',
             data: data
         });
 
     } catch (error) {
-        console.error('Error fetching workspaces:', error);
+        console.error('Error fetching workspaces and projects:', error);
         return res.status(500).json({
-            message: 'Đã xảy ra lỗi khi lấy danh sách workspace.',
+            message: 'Đã xảy ra lỗi khi lấy danh sách workspace và projects.',
             error: error.message
         });
     }
 };
-
-
 
 let getAllWorkspaces = async (req, res) => {
     try {

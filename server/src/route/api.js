@@ -17,7 +17,7 @@ const initAPIRoute = (app) => {
 
     // Workspace routes
     router.post('/create-workspace', checkAuthentication, workspaceController.createWorkspace);
-    router.get('/users/:userId/workspaces', checkAuthentication, workspaceController.getWorkspacesByUserId);
+    router.get('/users/:userId/workspaces', workspaceController.getWorkspacesByUserId);
     router.get('/workspaces', checkAuthentication, workspaceController.getAllWorkspaces);
     router.put('/update-workspaces/:workspaceId', checkAuthentication, workspaceController.updateWorkspace);
     router.delete('/delete-workspaces/:workspaceId', checkAuthentication, workspaceController.deleteWorkspace);

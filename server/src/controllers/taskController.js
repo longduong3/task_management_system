@@ -152,4 +152,91 @@ const createTask = async (req, res) => {
     }
 };
 
-export default {getTasksByProjectId, createTask};
+const updateTask = async (req, res) => {
+    try {
+        const taskId = req.params.taskId;
+        const {
+            name,
+            description,
+            status_id,
+            priority,
+            due_date,
+            assignee_ids
+        } = req.body;
+
+        // Verify task exists
+        const task = await Task.findByPk(taskId);
+        if (!task) {
+            return res.status(404).json({
+                message: 'Task không tồn tại'
+            });
+        }
+
+        const result = await sequelize.transaction(async (t) => {
+            // Update task basic information
+            const updateData = {};
+            if (name) updateData.name = name;
+            if (description) updateData.description = description;
+            if (status_id) updateData.status_id = status_id;
+            if (priority) updateData.priority = priority;
+            if (due_date) updateData.due_date = due_date;
+
+            await task.update(updateData, { transaction: t });
+
+            // Handle assignees if provided
+            if (assignee_ids && Array.isArray(assignee_ids)) {
+                // Verify all users exist
+                const users = await User.findAll({
+                    where: {
+                        id: { [Op.in]: assignee_ids }
+                    }
+                });
+
+                if (users.length !== assignee_ids.length) {
+                    throw new Error('Một hoặc nhiều assignee không tồn tại');
+                }
+
+                // Remove existing assignees
+                await RefTaskAssignees.destroy({
+                    where: { task_id: taskId },
+                    transaction: t
+                });
+
+                // Add new assignees
+                const assigneeRecords = assignee_ids.map(assignee_id => ({
+                    task_id: taskId,
+                    assignee_id,
+                    assigned_at: new Date()
+                }));
+
+                await RefTaskAssignees.bulkCreate(assigneeRecords, { transaction: t });
+            }
+
+            // Return updated task with assignees
+            return Task.findOne({
+                where: { id: taskId },
+                include: [{
+                    model: User,
+                    as: 'assignees',
+                    attributes: ['id', 'name', 'email'],
+                    through: { attributes: ['assigned_at'] }
+                }],
+                transaction: t
+            });
+        });
+
+        return res.status(200).json({
+            message: 'Cập nhật task thành công',
+            data: result
+        });
+
+    } catch (error) {
+        console.error('Error updating task:', error);
+        return res.status(500).json({
+            message: 'Đã xảy ra lỗi khi cập nhật task',
+            error: error.message
+        });
+    }
+};
+
+export default {getTasksByProjectId, createTask, updateTask};
