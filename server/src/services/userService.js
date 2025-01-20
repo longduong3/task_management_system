@@ -34,6 +34,7 @@ let handleUserLogin = (email, password) => {
                         userData.errCode = 0;
                         userData.errMessage = 'Login successful!';
                         userData.access_token = access_token;
+                        userData.id = user.id;
                         userData.name = user.name;
                         userData.email = user.email;
                         resolve(userData);

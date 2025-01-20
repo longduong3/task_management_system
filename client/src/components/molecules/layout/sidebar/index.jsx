@@ -40,12 +40,16 @@ function SidebarItem({ icon, title, content, isActive, toggleCollapse }) {
 }
 
 // Reusable Space Item Component
-function SpaceItem({ space, isActive, toggleCollapse, onGetDataFromForm, onCreateList, data, list }) {
+function SpaceItem({ space, isActive, toggleCollapse, onGetDataFromForm, onHandleOpen, onCreateList, data, list }) {
     const navigate = useNavigate();
+    // const onHandleOpen = (ev) => {
+    //     let idSpace = ev.currentTarget.getAttribute('data-space');
+    //
+    // }
     return (
         <li>
             <div className="py-3 flex items-center w-full gap-2 border-b text-black">
-                <ModalCustom customStyle="hover:bg-chart-color1 h-10 w-10 text-sm">
+                 <ModalCustom customStyle="hover:bg-chart-color1 h-10 w-10 text-sm" idSpace={space.id} onHandleOpen={onHandleOpen}>
                     <div className="title-modal mb-10">
                         <Typography variant="h6">Create List</Typography>
                         <Typography variant="body2" color="textSecondary">
@@ -109,6 +113,8 @@ function SideBar() {
     const [list, setList] = useState([]);
     const data = [{ value: '1', text: '1' }, { value: '2', text: '2' }];
 
+    const session = JSON.parse(localStorage.getItem('session'));
+    const userInfo = session.user;
     const items = [
         { icon: faHome, title: "Dashboard", content: "Dashboard 1" },
         { icon: faHome, title: "Item 2", content: "This is the content of Item 2" },
@@ -126,12 +132,17 @@ function SideBar() {
 
     const getWorkSpace = async () => {
         try {
-            const response = await apiCall.get('/workspaces');
+            // const response = await apiCall.get('/workspaces');
+            const response = await apiCall.get(`/users/${userInfo.uId}/workspaces`);
             return response.data ? response.data.data : [];
         } catch (error) {
             console.error('Error:', error);
             return [];
         }
+    }
+
+    const onHandleOpen = (ev) => {
+        let idSpace = ev.currentTarget.getAttribute('data-space');
     }
 
     const toggleCollapse = (index) => {
@@ -147,8 +158,15 @@ function SideBar() {
         owned_id: 1
     });
 
-    const onCreateList = (ev) => {
+    const onCreateList = async (ev) => {
         setList([...list, nameProjects]);
+        try {
+            const response = await apiCall.get('/create-project');
+            return response.data ? response.data.data : [];
+        } catch (error) {
+            console.error('Error:', error);
+            return [];
+        }
         setLocation('');
         setNameSpace('');
     }
@@ -158,7 +176,7 @@ function SideBar() {
         try {
             const response = await apiCall.post('/create-workspace', {
                 name: nameSpace.name,
-                owner_id: 1
+                owner_id: userInfo.uId
             });
         } catch (error) {
             console.error('Error:', error);
@@ -248,6 +266,7 @@ function SideBar() {
                                         name: e.target.value
                                     })
                                 }
+                                onHandleOpen={onHandleOpen}
                                 onCreateList={onCreateList}
                                 list={list}
                                 data={data}

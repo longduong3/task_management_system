@@ -6,8 +6,8 @@ import {Typography} from "@mui/material";
 
 function List() {
     return (
-        <div className="flex flex-col w-full h-full overflow-auto text-gray-700 bg-gradient-to-tr bg-white p-5">
-            <div className="create-task">
+        <div className="flex flex-col w-full h-full overflow-auto text-gray-700 bg-gradient-to-tr bg-white px-5">
+            <div className="create-task py-4 border-b">
                 <Button variant="contained">Add Task</Button>
             </div>
             {/*List task*/}

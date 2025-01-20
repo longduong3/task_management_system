@@ -11,7 +11,7 @@ function App() {
                 <Routes>
                     {publicRoutes.map(({path, component: Component, layout}, index) => {
                         const Layout = layout === null ? Fragment : layout || DefaultLayout;
-                        const showSidebar = path !== '/login';
+                        const showSidebar = path !== '/login' && path !== '/signUp';
                         return (
                             <Route
                                 key={index}
