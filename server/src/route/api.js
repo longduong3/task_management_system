@@ -3,6 +3,8 @@ import workspaceController from "../controllers/workspaceController";
 import userController from "../controllers/userController";
 import projectController from "../controllers/projectController";
 import taskController from "../controllers/taskController";
+import commentController from "../controllers/commentController";
+import timeTrackingController from "../controllers/timeTrackingController";
 import checkAuthentication from '../middlewares/checkAuthentication';
 
 let router = express.Router();
@@ -17,7 +19,7 @@ const initAPIRoute = (app) => {
 
     // Workspace routes
     router.post('/create-workspace', checkAuthentication, workspaceController.createWorkspace);
-    router.get('/users/:userId/workspaces', workspaceController.getWorkspacesByUserId);
+    router.get('/users/:userId/workspaces', checkAuthentication, workspaceController.getWorkspacesByUserId);
     router.get('/workspaces', checkAuthentication, workspaceController.getAllWorkspaces);
     router.put('/update-workspaces/:workspaceId', checkAuthentication, workspaceController.updateWorkspace);
     router.delete('/delete-workspaces/:workspaceId', checkAuthentication, workspaceController.deleteWorkspace);
@@ -31,6 +33,21 @@ const initAPIRoute = (app) => {
     // Task routes
     router.post('/create-task', checkAuthentication, taskController.createTask);
     router.get('/workspace/projects/:projectId/tasks', checkAuthentication, taskController.getTasksByProjectId);
+    router.delete('/delete-tasks/:taskId', checkAuthentication, taskController.deleteTask);
+    router.put('/update-tasks/:taskId', checkAuthentication, taskController.updateTask);
+    router.put('/update-tasks/:taskId/status', checkAuthentication, taskController.updateTaskStatus);
+    router.get('/detail-tasks/:taskId', checkAuthentication, taskController.getTaskDetail);
+
+    // Comment routes
+    router.post('/create-comments', checkAuthentication, commentController.createComment);
+    router.put('/update-comments/:commentId', checkAuthentication, commentController.updateComment);
+    router.delete('/delete-comments/:commentId', checkAuthentication, commentController.deleteComment);
+    router.get('/tasks/:taskId/comments', checkAuthentication, commentController.getCommentsByTaskId);
+
+    // Timetracking routes
+    router.post('/time-tracking/start', checkAuthentication, timeTrackingController.startTimeTracking);
+    router.put('/time-tracking/stop', checkAuthentication, timeTrackingController.stopTimeTracking);
+    router.get('/tasks/:taskId/time-tracking', checkAuthentication, timeTrackingController.getTimeTrackingByTaskId);
 
     return app.use("/api/v1/", router);
 };

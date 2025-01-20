@@ -147,7 +147,7 @@ let createWorkspace = async (req, res) => {
     }
 }
 
-// Thêm hàm updateWorkspace
+
 const updateWorkspace = async (req, res) => {
     try {
         const workspaceId = req.params.workspaceId;

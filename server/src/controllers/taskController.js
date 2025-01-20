@@ -1,4 +1,4 @@
-import {TaskStatus, Task, User } from '../models';
+import {TaskStatus, Task, User} from '../models';
 
 
 const getTasksByProjectId = async (req, res) => {
@@ -239,4 +239,197 @@ const updateTask = async (req, res) => {
     }
 };
 
-export default {getTasksByProjectId, createTask, updateTask};
+const deleteTask = async (req, res) => {
+    try {
+        const taskId = req.params.taskId;
+        const userId = req.user.id;
+
+        const task = await Task.findByPk(taskId, {
+            include: [{
+                model: Project,
+                include: [{
+                    model: Workspace
+                }]
+            }]
+        });
+
+        if (!task) {
+            return res.status(404).json({
+                message: 'Task không tồn tại'
+            });
+        }
+
+        // Check permissions
+        const workspace = task.Project.Workspace;
+        const hasPermission = await checkUserProjectPermission(userId, workspace.id);
+        if (!hasPermission) {
+            return res.status(403).json({
+                message: 'Bạn không có quyền xóa task này'
+            });
+        }
+
+        await sequelize.transaction(async (t) => {
+            // Delete related records
+            await TimeTracking.destroy({
+                where: { task_id: taskId },
+                transaction: t
+            });
+
+            await Comment.destroy({
+                where: { task_id: taskId },
+                transaction: t
+            });
+
+            await Attachment.destroy({
+                where: { task_id: taskId },
+                transaction: t
+            });
+
+            await RefTaskAssignees.destroy({
+                where: { task_id: taskId },
+                transaction: t
+            });
+
+            await task.destroy({ transaction: t });
+        });
+
+        return res.status(200).json({
+            message: 'Xóa task thành công'
+        });
+
+    } catch (error) {
+        console.error('Error deleting task:', error);
+        return res.status(500).json({
+            message: 'Đã xảy ra lỗi khi xóa task',
+            error: error.message
+        });
+    }
+};
+
+const updateTaskStatus = async (req, res) => {
+    try {
+        const { taskId } = req.params;
+        const { status_id } = req.body;
+        const userId = req.user.id;
+
+        if (!status_id) {
+            return res.status(400).json({
+                message: 'Status ID là bắt buộc'
+            });
+        }
+
+        const task = await Task.findByPk(taskId);
+        if (!task) {
+            return res.status(404).json({
+                message: 'Task không tồn tại'
+            });
+        }
+
+        const status = await TaskStatus.findOne({
+            where: {
+                id: status_id,
+                project_id: task.project_id
+            }
+        });
+
+        if (!status) {
+            return res.status(404).json({
+                message: 'Status không hợp lệ cho project này'
+            });
+        }
+
+        await task.update({ status_id });
+
+        const updatedTask = await Task.findOne({
+            where: { id: taskId },
+            include: [
+                {
+                    model: User,
+                    as: 'assignees',
+                    attributes: ['id', 'name', 'email'],
+                    through: { attributes: ['assigned_at'] }
+                },
+                {
+                    model: TaskStatus,
+                    attributes: ['id', 'name', 'color']
+                }
+            ]
+        });
+
+        return res.status(200).json({
+            message: 'Cập nhật trạng thái task thành công',
+            data: updatedTask
+        });
+
+    } catch (error) {
+        console.error('Error updating task status:', error);
+        return res.status(500).json({
+            message: 'Đã xảy ra lỗi khi cập nhật trạng thái task',
+            error: error.message
+        });
+    }
+};
+
+const getTaskDetail = async (req, res) => {
+    try {
+        const taskId = req.params.taskId;
+
+        const task = await Task.findOne({
+            where: { id: taskId },
+            include: [
+                {
+                    model: User,
+                    as: 'assignees',
+                    attributes: ['id', 'name', 'email'],
+                    through: { attributes: ['assigned_at'] }
+                },
+                {
+                    model: TaskStatus,
+                    attributes: ['id', 'name', 'color']
+                },
+                {
+                    model: Task,
+                    as: 'subtasks',
+                    include: [
+                        {
+                            model: User,
+                            as: 'assignees',
+                            attributes: ['id', 'name', 'email']
+                        },
+                        {
+                            model: TaskStatus,
+                            attributes: ['id', 'name', 'color']
+                        }
+                    ]
+                },
+                {
+                    model: TimeTracking,
+                    include: [{
+                        model: User,
+                        attributes: ['id', 'name', 'email']
+                    }]
+                }
+            ]
+        });
+
+        if (!task) {
+            return res.status(404).json({
+                message: 'Task không tồn tại'
+            });
+        }
+
+        return res.status(200).json({
+            message: 'Lấy thông tin task thành công',
+            data: task
+        });
+
+    } catch (error) {
+        console.error('Error getting task details:', error);
+        return res.status(500).json({
+            message: 'Đã xảy ra lỗi khi lấy thông tin task',
+            error: error.message
+        });
+    }
+};
+
+export default {getTasksByProjectId, createTask, updateTask, deleteTask, updateTaskStatus, getTaskDetail};
