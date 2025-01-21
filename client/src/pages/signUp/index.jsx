@@ -98,10 +98,6 @@ export default function SignUp() {
                                     onClick={() => doSignUp()}>SIGN UP
                             </button>
                         </div>
-                        <div className="">
-                            <span className="text-muted">Don't have an account yet? <a
-                                className="text-secondary">Sign up here</a></span>
-                        </div>
                     </div>
                 </div>
             </div>

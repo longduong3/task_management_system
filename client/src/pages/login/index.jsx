@@ -3,21 +3,33 @@ import '../../App.css'
 import { useNavigate } from "react-router-dom";
 import {useState} from "react";
 import apiCall from "../../services/axios.jsx";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import {useSpinner} from '../../services/spinnerContext.jsx'
 
 function Login() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const navigate = useNavigate();
+    const { showSpinner, hideSpinner } = useSpinner();
     const doLogin = async () => {
+        showSpinner();
         try {
             const response = await apiCall.post('/login', {
                 email: email,
                 password: password,
             });
-            alert(response.data.message);
-            localStorage.setItem('session', JSON.stringify(response.data));
-            navigate("/home");
+            if(response.data.errCode === 0) {
+                toast.success(response.data.message);
+                localStorage.setItem('session', JSON.stringify(response.data));
+                navigate("/home");
+                hideSpinner(1000);
+            } else {
+                hideSpinner(1000);
+                toast.error(response.data.message);
+            }
         } catch (error) {
+            hideSpinner(1000);
             console.error('Error:', error);
             return [];
         }
@@ -98,6 +110,7 @@ function Login() {
                         </div>
                         <div className="">
                             <button type="submit" className="text-black bg-white p-4 rounded" onClick={() => doLogin()}>SIGN IN</button>
+                            <ToastContainer />
                         </div>
                         <div className="">
                             <span className="text-muted">Don't have an account yet? <a

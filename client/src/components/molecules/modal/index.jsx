@@ -5,6 +5,7 @@ import { styled, css } from '@mui/system';
 import { Modal as BaseModal } from '@mui/base/Modal';
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faList, faPlus} from "@fortawesome/free-solid-svg-icons";
+import {Button} from "@mui/material";
 
 export default function ModalCustom(props) {
     const [open, setOpen] = React.useState(false);
@@ -15,6 +16,11 @@ export default function ModalCustom(props) {
         setOpen(true)
     };
     const handleClose = () => setOpen(false);
+
+    const onHandleFooterBtn = () => {
+        props.handleFooter();
+        setOpen(false);
+    }
 
     return (
         <div>
@@ -31,6 +37,12 @@ export default function ModalCustom(props) {
             >
                 <ModalContent sx={{minWidth: 400}}>
                     {props.children}
+                    <div className="footer-modal mt-5 border-t p-3 content-end text-end">
+                        <Button variant="contained" className="rounded-2xl" onClick={onHandleFooterBtn}>
+                            {props.footerBtn}
+                            {/*Create*/}
+                        </Button>
+                    </div>
                 </ModalContent>
             </Modal>
         </div>
@@ -38,7 +50,8 @@ export default function ModalCustom(props) {
 }
 
 ModalCustom.defaultProps = {
-    onHandleOpen: () => {},
+    onHandleOpen: () => {
+    },
 }
 
 const Backdrop = React.forwardRef((props, ref) => {

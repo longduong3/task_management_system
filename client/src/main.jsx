@@ -1,5 +1,5 @@
 import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
+import { SpinnerProvider } from './services/spinnerContext.jsx';
 import './index.css'
 import ReactDOM from "react-dom/client";
 import App from './App.jsx'
@@ -8,6 +8,8 @@ import App from './App.jsx'
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
     <StrictMode>
-        <App />
+        <SpinnerProvider>
+            <App />
+        </SpinnerProvider>
     </StrictMode>,
 );

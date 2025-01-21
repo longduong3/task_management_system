@@ -44,8 +44,8 @@ let getWorkspacesByUserId = async (req, res) => {
         }
 
         const data = user_with_workspaces.workspaces.map(workspace => ({
-            workspace_id: workspace.id,
-            workspace_name: workspace.name,
+            id: workspace.id,
+            name: workspace.name,
             role: workspace.RefWorkspaceUser.role,
             joined_at: workspace.RefWorkspaceUser.joined_at,
             projects: workspace.projects.map(project => ({
