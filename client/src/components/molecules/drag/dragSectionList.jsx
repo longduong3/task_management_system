@@ -112,6 +112,7 @@ const BoardSectionList = () => {
     const handleDragEnd = ({ active, over }) => {
         const activeContainer = findBoardSectionContainer(boardSections, active.id);
         const overContainer = findBoardSectionContainer(boardSections, over?.id);
+        console.log(overContainer);
 
         if (!activeContainer || !overContainer || activeContainer !== overContainer) {
             return;

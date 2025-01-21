@@ -49,11 +49,11 @@ function Home() {
                             </div>
                         </div>
                     </div>
-                    <div className="recent-activity bg-transparent p-5 space-y-5 rounded-lg border shadow-custom h-90">
+                    <div className="recent-activity bg-transparent space-y-5 rounded-lg border shadow-custom h-90">
                         <div className="heading">
-                            <h1 className="uppercase text-xs font-bold py-2">Recent Activity</h1>
+                            <h1 className="uppercase text-xs font-bold py-2 p-5">Recent Activity</h1>
                         </div>
-                        <div className="list-recent h-full overflow-auto">
+                        <div className="list-recent h-full overflow-auto p-5">
                             <div className="recent-item flex border-b border-l p-3 gap-4 items-center relative">
                                 <div className="img-recent">
                                     <img className="w-10 h-10 ml-auto rounded-full border"

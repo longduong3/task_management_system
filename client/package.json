@@ -19,11 +19,15 @@
     "@mui/icons-material": "^6.3.1",
     "@mui/material": "^6.3.1",
     "@mui/system": "^6.3.1",
+    "axios": "^1.7.9",
     "clsx": "^2.1.1",
+    "jwt-decode": "^4.0.0",
     "prop-types": "^15.8.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "react-router-dom": "^7.1.1"
+    "react-loading-indicators": "^1.0.0",
+    "react-router-dom": "^7.1.1",
+    "react-toastify": "^11.0.3"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",

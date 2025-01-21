@@ -21,6 +21,7 @@ let handleUserLogin = (email, password) => {
                             throw new Error('JWT configuration missing in .env file');
                         }
                         const payload = {
+                            id: user.id,
                             email: user.email,
                             name: user.name
                         };
