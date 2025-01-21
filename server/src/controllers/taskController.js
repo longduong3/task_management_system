@@ -432,4 +432,143 @@ const getTaskDetail = async (req, res) => {
     }
 };
 
-export default {getTasksByProjectId, createTask, updateTask, deleteTask, updateTaskStatus, getTaskDetail};
+const getTaskStatusByProjectId = async (req, res) => {
+    try {
+        const { projectId } = req.params;
+
+        // Validate project existence
+        const project = await Project.findByPk(projectId);
+        if (!project) {
+            return res.status(404).json({
+                message: 'Project không tồn tại'
+            });
+        }
+
+        // Get task statuses with count of tasks in each status
+        const taskStatuses = await TaskStatus.findAll({
+            where: { project_id: projectId },
+            include: [
+                {
+                    model: Project,
+                    attributes: ['name']
+                }
+            ],
+            attributes: [
+                'id',
+                'name',
+                'color',
+                'sequence',
+                'createdAt',
+                'updatedAt',
+                [sequelize.literal('(SELECT COUNT(*) FROM task WHERE task.status_id = TaskStatus.id)'), 'tasksCount']
+            ],
+            order: [['sequence', 'ASC']],
+        });
+
+        return res.status(200).json({
+            message: 'Lấy danh sách status thành công',
+            data: taskStatuses.map(status => ({
+                id: status.id,
+                name: status.name,
+                color: status.color,
+                sequence: status.sequence,
+                project_name: status.Project.name,
+                tasks_count: status.getDataValue('tasksCount'),
+                created_at: status.createdAt,
+                updated_at: status.updatedAt
+            }))
+        });
+
+    } catch (error) {
+        console.error('Error getting task statuses:', error);
+        return res.status(500).json({
+            message: 'Đã xảy ra lỗi khi lấy danh sách status',
+            error: error.message
+        });
+    }
+};
+
+const createTaskStatus = async (req, res) => {
+    try {
+        const { project_id, name, color, sequence } = req.body;
+
+        // Validate required fields
+        if (!project_id || !name || !color) {
+            return res.status(400).json({
+                message: 'Project ID, tên và màu sắc của status là bắt buộc'
+            });
+        }
+
+        // Validate project existence
+        const project = await Project.findByPk(project_id);
+        if (!project) {
+            return res.status(404).json({
+                message: 'Project không tồn tại'
+            });
+        }
+
+        // Check if status name already exists in project
+        const existingStatus = await TaskStatus.findOne({
+            where: {
+                project_id,
+                name: {
+                    [Op.iLike]: name // Case insensitive comparison
+                }
+            }
+        });
+
+        if (existingStatus) {
+            return res.status(400).json({
+                message: 'Status có tên này đã tồn tại trong project'
+            });
+        }
+
+        // If sequence is not provided, place at the end
+        let newSequence = sequence;
+        if (!newSequence) {
+            const maxSequence = await TaskStatus.max('sequence', {
+                where: { project_id }
+            });
+            newSequence = (maxSequence || 0) + 1;
+        }
+
+        // Create new status
+        const taskStatus = await TaskStatus.create({
+            project_id,
+            name,
+            color,
+            sequence: newSequence
+        });
+
+        // Get created status with project info
+        const createdStatus = await TaskStatus.findOne({
+            where: { id: taskStatus.id },
+            include: [{
+                model: Project,
+                attributes: ['name']
+            }]
+        });
+
+        return res.status(201).json({
+            message: 'Tạo status thành công',
+            data: {
+                id: createdStatus.id,
+                name: createdStatus.name,
+                color: createdStatus.color,
+                sequence: createdStatus.sequence,
+                project_name: createdStatus.Project.name,
+                created_at: createdStatus.createdAt,
+                updated_at: createdStatus.updatedAt
+            }
+        });
+
+    } catch (error) {
+        console.error('Error creating task status:', error);
+        return res.status(500).json({
+            message: 'Đã xảy ra lỗi khi tạo status',
+            error: error.message
+        });
+    }
+};
+
+export default {getTasksByProjectId, createTask, updateTask, deleteTask, updateTaskStatus, getTaskDetail, createTaskStatus, getTaskStatusByProjectId};
