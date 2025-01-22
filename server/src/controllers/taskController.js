@@ -451,6 +451,11 @@ const getTaskStatusByProjectId = async (req, res) => {
                 {
                     model: Project,
                     attributes: ['name']
+                },
+                {
+                    model: Task,
+                    attributes: [],
+                    duplicating: false
                 }
             ],
             attributes: [
@@ -460,8 +465,9 @@ const getTaskStatusByProjectId = async (req, res) => {
                 'sequence',
                 'createdAt',
                 'updatedAt',
-                [sequelize.literal('(SELECT COUNT(*) FROM task WHERE task.status_id = task_status.id)'), 'tasksCount']
+                [sequelize.fn('COUNT', sequelize.col('Tasks.id')), 'tasksCount']
             ],
+            group: ['TaskStatus.id', 'Project.id'],
             order: [['sequence', 'ASC']],
         });
 
