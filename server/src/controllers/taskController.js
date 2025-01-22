@@ -460,7 +460,7 @@ const getTaskStatusByProjectId = async (req, res) => {
                 'sequence',
                 'createdAt',
                 'updatedAt',
-                [sequelize.literal('(SELECT COUNT(*) FROM task WHERE task.status_id = TaskStatus.id)'), 'tasksCount']
+                [sequelize.literal('(SELECT COUNT(*) FROM task WHERE task.status_id = task_status.id)'), 'tasksCount']
             ],
             order: [['sequence', 'ASC']],
         });
