@@ -34,7 +34,7 @@ const initAPIRoute = (app) => {
     router.post('/create-task', checkAuthentication, taskController.createTask);
     router.post('/create-status-task', checkAuthentication, taskController.createTaskStatus);
     router.get('/workspace/projects/:projectId/tasks', checkAuthentication, taskController.getTasksByProjectId);
-    router.get('/workspace/projects/:projectId/status-task', checkAuthentication, taskController.getTaskStatusByProjectId);
+    router.get('/workspace/projects/:projectId/status-task', taskController.getTaskStatusByProjectId);
     router.delete('/delete-tasks/:taskId', checkAuthentication, taskController.deleteTask);
     router.put('/update-tasks/:taskId', checkAuthentication, taskController.updateTask);
     router.put('/update-tasks/:taskId/status', checkAuthentication, taskController.updateTaskStatus);

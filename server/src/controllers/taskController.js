@@ -1,4 +1,4 @@
-import {TaskStatus, Task, User} from '../models';
+import {TaskStatus, Task, User, Project, sequelize} from '../models';
 
 
 const getTasksByProjectId = async (req, res) => {
