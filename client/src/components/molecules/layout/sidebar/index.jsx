@@ -103,8 +103,10 @@ function SideBar() {
     const { showSpinner, hideSpinner } = useSpinner();
     const data = [{ value: '1', text: '1' }, { value: '2', text: '2' }];
 
+
     const session = JSON.parse(localStorage.getItem('session'));
     const userInfo = session.user;
+
     const items = [
         { icon: faHome, title: "Dashboard", content: "Dashboard 1" },
         { icon: faHome, title: "Item 2", content: "This is the content of Item 2" },

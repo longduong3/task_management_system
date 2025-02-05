@@ -5,18 +5,6 @@ import {useEffect} from "react";
 import apiCall from "../../services/axios.jsx";
 
 function Home() {
-    useEffect( () => {
-        const getUserInfo = async () => {
-            try {
-                const response = await apiCall.post('/users');
-                alert('Sign up successfully!');
-            } catch (error) {
-                console.error('Error:', error);
-                return [];
-            }
-        }
-        getUserInfo()
-    }, []);
     return (
         <div className="flex flex-col w-full h-full overflow-auto text-gray-700 bg-gradient-to-tr bg-white p-5">
             <div className="">

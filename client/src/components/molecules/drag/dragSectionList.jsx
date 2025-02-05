@@ -18,6 +18,8 @@ import TaskItem from './taskItems.jsx';
 import apiCall from "../../../services/axios.jsx";
 import {useParams} from "react-router-dom";
 import Button from "@mui/material/Button";
+import {faPlus} from "@fortawesome/free-solid-svg-icons";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {useSpinner} from "../../../services/spinnerContext.jsx";
 
 const BoardSectionList = () => {
@@ -25,6 +27,9 @@ const BoardSectionList = () => {
     const [tasks, setTasks] = useState([]);
     const [boardSections, setBoardSections] = useState({});
     const [activeTaskId, setActiveTaskId] = useState(null);
+    const [isCreateGroup, setIsCreateGroup] = useState(false);
+    const [newStatusName, setNewStatusName] = useState('');
+    const [selectedColor, setSelectedColor] = useState('#6B7280');
     const { showSpinner, hideSpinner } = useSpinner();
     const {id} = useParams();
     // Fetch data from API
@@ -43,8 +48,8 @@ const BoardSectionList = () => {
                 const initialSections = {};
                 statuses.forEach((status) => {
                     initialSections[status.name] = tasks.filter(
-                        (task) => task.status_id === status.sequence
-                    ) || []; // Đảm bảo mảng rỗng nếu không có task
+                        (task) => task.status_id === status.id
+                    ) || [];
                 });
 
                 setBoardSections(initialSections);
@@ -54,7 +59,7 @@ const BoardSectionList = () => {
         };
 
         fetchData();
-    }, []);
+    }, [id]);
 
 
     // DnD Kit setup
@@ -71,7 +76,7 @@ const BoardSectionList = () => {
 
     const handleDragOver = ({ active, over }) => {
         const activeContainer = findBoardSectionContainer(boardSections, active.id);
-        const overContainer = findBoardSectionContainer(boardSections, over?.id) || over?.id; // Xử lý khi overContainer là rỗng
+        const overContainer = findBoardSectionContainer(boardSections, over?.id) || over?.id;
 
         if (!activeContainer || !overContainer || activeContainer === overContainer) {
             return;
@@ -79,7 +84,7 @@ const BoardSectionList = () => {
 
         setBoardSections((prevSections) => {
             const activeItems = prevSections[activeContainer];
-            const overItems = prevSections[overContainer] || []; // Đảm bảo không bị undefined
+            const overItems = prevSections[overContainer] || [];
 
             const activeIndex = activeItems.findIndex((item) => item.id === active.id);
             const movedTask = activeItems[activeIndex];
@@ -168,7 +173,7 @@ const BoardSectionList = () => {
         }
 
         return Object.keys(sections).find((key) =>
-            (sections[key] || []).some((item) => item.id === id)
+            (sections[key] || []).find((item) => item.id === id)
         );
     };
 
@@ -200,35 +205,49 @@ const BoardSectionList = () => {
         const updatedSections = {};
         statuses.forEach((status) => {
             updatedSections[status.name] = updatedTasks.filter(
-                (task) => task.status_id === status.sequence
+                (task) => task.status_id === status.id
             ) || [];
         });
         setBoardSections(updatedSections);
     };
 
     const addGroup = async () => {
-
-        // showSpinner();
-        // try {
-        //     const params = {
-        //         status_id: section.id,
-        //         name: taskName,
-        //         project_id: id,
-        //     };
-        //     const taskResponse = await apiCall.post(`/create-status-task`, params);
-        //     const newTask = taskResponse.data.data;
-        //
-        //     setTasks((prevTasks) => {
-        //         const updatedTasks = [...prevTasks, newTask];
-        //         updateBoardSections(updatedTasks);
-        //         return updatedTasks;
-        //     });
-        // } catch (error) {
-        //     console.error("Error creating task:", error);
-        // } finally {
-        //     hideSpinner();
-        // }
+        setIsCreateGroup(true);
     }
+
+    const handleSaveGroup = async () => {
+        if (!newStatusName.trim()) {
+            alert("Please enter a status name!");
+            return;
+        }
+
+        try {
+            showSpinner();
+            const params = {
+                name: newStatusName,
+                color: selectedColor,
+                project_id: id
+            };
+            const response = await apiCall.post(`/create-status-task`, params);
+            const newStatus = response.data.data;
+
+            // Cập nhật lại UI
+            setStatuses((prev) => [...prev, newStatus]);
+            setBoardSections((prev) => ({
+                ...prev,
+                [newStatus.name]: []
+            }));
+
+            // Reset form
+            setIsCreateGroup(false);
+            setNewStatusName('');
+            setSelectedColor('#6B7280');
+        } catch (error) {
+            console.error("Error creating status:", error);
+        } finally {
+            hideSpinner();
+        }
+    };
 
     return (
         <div className="drag-container flex gap-6">
@@ -254,10 +273,49 @@ const BoardSectionList = () => {
                     {activeTaskId && <Card task={tasks.find((task) => task.id === activeTaskId)} />}
                 </DragOverlay>
             </DndContext>
-            <div>
-                <div className="create-task hover:bg-slate-300 hover:text-white px-2 rounded">
-                    <button className="py-2 px-4" onClick={addGroup}>+ Add Group</button>
+            <div className="position-relative space-y-2">
+                <div className="create-task hover:bg-slate-300 hover:text-white px-2 rounded text-gray-300">
+                    <button className="w-40 py-2" onClick={addGroup}>
+                        <FontAwesomeIcon icon={faPlus}/>
+                        Add Group
+                    </button>
                 </div>
+                {
+                    isCreateGroup && (
+                        <div className="create-group position-absolute bg-white shadow-md rounded-2xl p-4 border space-y-3">
+                            {/* Nhập Tên Status */}
+                            <input
+                                className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                placeholder="Status name"
+                                value={newStatusName}
+                                onChange={(e) => setNewStatusName(e.target.value)}
+                            />
+
+                            {/* Bảng Chọn Màu */}
+                            <div className="flex items-center space-x-4">
+                                <label className="text-sm font-medium">Select Color:</label>
+                                <input
+                                    type="color"
+                                    value={selectedColor}
+                                    onChange={(e) => setSelectedColor(e.target.value)}
+                                    className="w-10 h-10 rounded-full cursor-pointer border-2"
+                                />
+                                <div
+                                    className="w-8 h-8 rounded-full border-2"
+                                    style={{backgroundColor: selectedColor}}
+                                ></div>
+                            </div>
+
+                            {/* Nút Save */}
+                            <button
+                                className="w-full py-2 bg-indigo-500 text-white rounded hover:bg-indigo-600"
+                                onClick={handleSaveGroup}
+                            >
+                                Save
+                            </button>
+                        </div>
+                    )
+                }
             </div>
         </div>
 

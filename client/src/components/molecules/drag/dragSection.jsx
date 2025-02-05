@@ -18,9 +18,7 @@ const BoardSection = ({ id, title, tasks, handleCreateTask }) => {
     const [taskName, setTaskName] = useState("");
     const [section, setSection] = useState(null);
     const containerRef = useRef(null);
-    const { setNodeRef } = useDroppable({
-        id,
-    });
+    const { setNodeRef, isOver } = useDroppable({ id });
 
     const handleGetSection = (ev) => {
         setIsCreate(true);
@@ -40,21 +38,22 @@ const BoardSection = ({ id, title, tasks, handleCreateTask }) => {
     }
 
     useEffect(() => {
-        // Thêm event listener khi component được mount
-        document.addEventListener("mousedown", handleClickOutside);
-
-        // Cleanup event listener khi component bị unmount
-        return () => {
-            document.removeEventListener("mousedown", handleClickOutside);
+        const handleClickOutside = (event) => {
+            if (containerRef.current && !containerRef.current.contains(event.target)) {
+                setIsCreate(false);
+            }
         };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
+
     return (
-        <div className="flex flex-col flex-shrink-0 w-80 bg-secondary rounded-xl p-5" style={{background: '#ece0ef'}}>
+        <div ref={setNodeRef} className="flex flex-col flex-shrink-0 w-80 bg-secondary rounded-xl p-5" style={{ background: isOver ? '#d1e7dd' : '#ece0ef' }}>
             <div className="flex items-center flex-shrink-0 h-10 px-2">
                 <span className="block text-sm font-semibold">{title}</span>
                 <span
-                    className="flex items-center justify-center w-5 h-5 ml-2 text-sm font-semibold text-indigo-500 bg-white rounded bg-opacity-30">6</span>
+                    className="flex items-center justify-center w-5 h-5 ml-2 text-sm font-semibold text-indigo-500 bg-white rounded bg-opacity-30">{tasks.length}</span>
                 <button
                     className="flex items-center justify-center w-6 h-6 ml-auto text-indigo-500 rounded hover:bg-indigo-500 hover:text-indigo-100">
                     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -65,21 +64,16 @@ const BoardSection = ({ id, title, tasks, handleCreateTask }) => {
             </div>
             {/*Card*/}
             <div className="flex flex-col pb-2 overflow-auto">
-                <SortableContext
-                    id={id}
-                    items={tasks}
-                    strategy={verticalListSortingStrategy}
-                >
-                    <div ref={setNodeRef}>
-                        {tasks.map((task) => (
-                            <Box key={task.id} sx={{mb: 2}}>
-                                <DragSectionItem id={task.id}>
-                                    <Card task={task}/>
-                                    {/*<TaskItem task={task}/>*/}
-                                </DragSectionItem>
-                            </Box>
-                        ))}
-                    </div>
+            <SortableContext id={id} items={tasks} strategy={verticalListSortingStrategy}>
+                    {tasks.length > 0 ? (
+                        tasks.map((task) => (
+                            <DragSectionItem key={task.id} id={task.id}>
+                                <Card task={task} />
+                            </DragSectionItem>
+                        ))
+                    ) : (
+                        <div className="rounded-md flex items-center justify-center"></div>
+                    )}
                 </SortableContext>
                 {
                     isCreate && (
@@ -111,16 +105,6 @@ const BoardSection = ({ id, title, tasks, handleCreateTask }) => {
             </div>
             <div className="flex items-center justify-start gap-4 hover:bg-sky-50 p-3 cursor-pointer rounded-lg"
                  data-sections={id} onClick={handleGetSection}>
-                <button
-                    className="text-indigo-500 rounded ">
-                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
-                              d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                    </svg>
-                </button>
-                <h5>Create task</h5>
-            </div>
-            <div className="flex items-center justify-start gap-4 hover:bg-sky-50 p-3 cursor-pointer rounded-lg">
                 <button
                     className="text-indigo-500 rounded ">
                     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
