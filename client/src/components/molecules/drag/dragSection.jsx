@@ -120,6 +120,16 @@ const BoardSection = ({ id, title, tasks, handleCreateTask }) => {
                 </button>
                 <h5>Create task</h5>
             </div>
+            <div className="flex items-center justify-start gap-4 hover:bg-sky-50 p-3 cursor-pointer rounded-lg">
+                <button
+                    className="text-indigo-500 rounded ">
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+                              d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                    </svg>
+                </button>
+                <h5>Create task</h5>
+            </div>
         </div>
     );
 };
