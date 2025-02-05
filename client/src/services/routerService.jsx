@@ -6,7 +6,7 @@ import SignUp from '../pages/signUp';
 const publicRoutes = [
     { path: '/', component: Login, isProtected: false, },
     { path: '/home', component: Home, isProtected: true,},
-    { path: '/list', component: List, isProtected: true,},
+    { path: '/list/:id', component: List, isProtected: true,},
     { path: '/signUp', component: SignUp, isProtected: false,},
 ];
 const privateRoutes = [];

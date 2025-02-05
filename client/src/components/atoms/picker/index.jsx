@@ -63,21 +63,17 @@ function useIsDarkMode() {
     return theme.palette.mode === 'dark';
 }
 
-export default function UnstyledSelectBasic({label = '', defaultValue = '', data = [{value: '', text: 'Please select an option'}]}) {
+export default function UnstyledSelectBasic({label = '', extendStyle='', defaultValue = '', data = [{value: '', text: 'Please select an option'}]}) {
     // Replace this with your app logic for determining dark modes
     const isDarkMode = useIsDarkMode();
 
     return (
-        <div className={`base-class ${isDarkMode ? 'dark' : ''} mb-3`}>
+        <div className={`base-class ${isDarkMode ? 'dark' : ''} mb-3 w-full ${extendStyle}`}>
             <div className="label mb-2 text-stone-500">{label}</div>
             <Select defaultValue={defaultValue}>
                 {data.map((item, index) => (
                     <Option key={index} value={item.value}>{item.text}</Option>
                 ))}
-
-                {/*<Option value={10}>Ten</Option>*/}
-                {/*<Option value={20}>Twenty</Option>*/}
-                {/*<Option value={30}>Thirty</Option>*/}
             </Select>
         </div>
     );

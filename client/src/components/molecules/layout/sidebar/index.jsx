@@ -74,7 +74,7 @@ function SpaceItem({ space, isActive, toggleCollapse, onGetDataFromForm, onCreat
                 </button>
             </div>
             <div
-                className={`ps-8 overflow-hidden transition-all duration-300 ease-in-out ${
+                className={`ps-4 overflow-hidden transition-all duration-300 ease-in-out ${
                     isActive ? "h-auto opacity-100" : "max-h-0 opacity-0"
                 }`}
             >
@@ -82,7 +82,7 @@ function SpaceItem({ space, isActive, toggleCollapse, onGetDataFromForm, onCreat
                     <div
                         key={idx}
                         className="mt-4 text-white text-xm hover:text-chart-color1 cursor-pointer flex gap-4 items-center py-3"
-                        onClick={() => navigate('/list')}
+                        onClick={() => navigate(`/list/${item.id}`)}
                     >
                         <FontAwesomeIcon icon={faList}/>
                         <span>{item.name}</span>
@@ -239,7 +239,7 @@ function SideBar() {
                 </div>
                 <div className="border mt-5" />
                 <div className="list-space flex flex-col">
-                    <div className="action-create-space p-5">
+                    <div className="action-create-space py-5">
                         <ModalCustom btnName="Create new space" customStyle="bg-chart-color1" footerBtn="Create" handleFooter={handleCreateSpace}>
                             <div className="title-modal mb-10">
                                 <Typography variant="h6">Create Space</Typography>

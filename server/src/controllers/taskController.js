@@ -1,10 +1,11 @@
-import {TaskStatus, Task, User} from '../models';
-
+import {TaskStatus, Task, User, Project} from '../models';
+import { sequelize } from '../models';
+import {Op} from "sequelize";
 
 const getTasksByProjectId = async (req, res) => {
     try {
         const projectId = req.params.projectId;
-        const { page = 1, limit = 10, status, priority } = req.query;
+        const { status, priority } = req.query;
 
         const where = { project_id: projectId };
 
@@ -25,8 +26,8 @@ const getTasksByProjectId = async (req, res) => {
                     attributes: ['id', 'name', 'color']
                 }
             ],
-            limit: parseInt(limit),
-            offset: (page - 1) * limit,
+            // limit: parseInt(limit),
+            // offset: (page - 1) * limit,
             order: [['due_date', 'ASC']]
         });
 
@@ -36,8 +37,8 @@ const getTasksByProjectId = async (req, res) => {
                 tasks: tasks.rows,
                 pagination: {
                     total: tasks.count,
-                    page: parseInt(page),
-                    total_pages: Math.ceil(tasks.count / limit)
+                    // page: parseInt(page),
+                    // total_pages: Math.ceil(tasks.count / limit)
                 }
             }
         });

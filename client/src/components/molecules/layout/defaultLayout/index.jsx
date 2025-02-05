@@ -3,18 +3,18 @@ import Header from "../header";
 
 function DefaultLayout({ children, showSidebar }) {
     return (
-        <div className="flex flex-row h-auto">
+        <div className="flex h-full w-full">
             {showSidebar && (
-                <div className="sidebar m-5 hidden lg:block w-96">
-                    <SideBar />
-                </div>
+                <aside
+                    className="sidebar m-5 w-72 h-full flex-shrink-0 hidden lg:block bg-gray-100 shadow-md rounded-md">
+                    <SideBar/>
+                </aside>
             )}
-            <div className="content w-full">
-                {showSidebar && (
-                    <Header/>
-                )}
+
+            <main className="flex-1 overflow-auto h-full">
+                {showSidebar && <Header/>}
                 {children}
-            </div>
+            </main>
         </div>
     );
 }

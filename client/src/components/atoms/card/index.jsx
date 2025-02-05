@@ -14,9 +14,8 @@ function Card({task}) {
                     </svg>
                 </button>
                 <span
-                    className="flex items-center h-6 px-3 text-xs font-semibold text-pink-500 bg-pink-100 rounded-full">{task ? task.title : ''}</span>
-                <h4 className="mt-3 text-sm font-medium">This is the title of the card for the thing that
-                    needs to be done.</h4>
+                    className="flex items-center h-6 px-3 text-xs font-semibold text-pink-500 bg-pink-100 rounded-full">{task ? task.name : ''}</span>
+                <h4 className="mt-3 text-sm font-medium">{task ? task.description : ''}</h4>
                 <div className="flex items-center w-full mt-3 text-xs font-medium text-gray-400">
                     <div className="flex items-center">
                         <svg className="w-4 h-4 text-gray-300 fill-current"
